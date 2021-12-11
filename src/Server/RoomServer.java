@@ -3,8 +3,6 @@ package Server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedList;
-
 
 
 class CommandOption{
@@ -12,7 +10,7 @@ class CommandOption{
     public static final String REGRET_CHESS = "REGRET_CHESS";
     public static final String CHECK_UPDATE = "CHECK_UPDATE";
     public static final String WIN = "WIN";
-    public static final String SEND_MESSAGE = "SEND_MESSAGE";
+    public static final String SEND_CHET_MESSAGE = "SEND_CHET_MESSAGE";
 }
 
 public class RoomServer implements Serializable {
@@ -118,6 +116,13 @@ public class RoomServer implements Serializable {
             int winChessColor = Integer.parseInt(info[1]);
             System.out.println(winChessColor+"赢了");
             Model.getInstance().setWinner(winChessColor);
+        }
+        // acquire = "SEND_CHET_MESSAGE:userName:chetInfo"
+        else if(acquire.startsWith(CommandOption.SEND_CHET_MESSAGE)){
+            String[] info = acquire.split(":");
+            String userName = info[1];
+            String chetStr = info[2];
+            Model.getInstance().updateChetInfo(userName,chetStr);
         }
     }
 

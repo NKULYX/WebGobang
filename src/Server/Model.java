@@ -77,4 +77,15 @@ public class Model implements Serializable {
     }
 
 
+    public void updateChetInfo(String userName, String chetStr) {
+        StringBuilder builder = new StringBuilder();
+        if(chetInfo!=null){
+            builder.append(chetInfo);
+            builder.append('\n');
+        }
+        builder.append(userName+":");
+        builder.append('\n');
+        builder.append(chetStr);
+        chetInfo = builder.toString();
+    }
 }

@@ -1,8 +1,14 @@
 package GameFrame;
 
+import Client.ClientPlayer;
+
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class ChetPanel extends JPanel {
     private static ChetPanel instance;
@@ -30,6 +36,7 @@ public class ChetPanel extends JPanel {
         this.setLayout(null);
 
         chetPane = new JTextPane();
+        chetPane.setEditable(false);
         chetPane.setBounds(0,0,200,200);
         chetPane.setBackground(new Color(190, 115, 80, 255));
 
@@ -65,5 +72,46 @@ public class ChetPanel extends JPanel {
         this.add(sendButton);
         this.add(regretButton);
         this.add(surrenderButton);
+
+        initActionListener();
+    }
+
+    private void initActionListener() {
+        inputPane.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyChar() == KeyEvent.VK_ENTER){
+                    localUpdateText();
+                }
+            }
+        });
+
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                localUpdateText();
+            }
+        });
+    }
+
+    private void localUpdateText() {
+        String inputStr = inputPane.getText();
+        inputPane.setText(null);
+        ClientPlayer.getInstance().sendText(inputStr);
+        String chetInfo = chetPane.getText();
+        StringBuilder builder = new StringBuilder();
+        builder.append(chetInfo);
+        if(chetInfo.length()!=0){
+            builder.append('\n');
+        }
+        builder.append(ClientPlayer.getInstance().getUserName()+":");
+        builder.append('\n');
+        builder.append(inputStr);
+        chetPane.setText(builder.toString());
+    }
+
+
+    public void updateText(String chetInfo) {
+        chetPane.setText(chetInfo);
     }
 }

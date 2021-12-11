@@ -17,13 +17,14 @@ class CommandOption{
     public static final String PUT_CHESS = "PUT_CHESS";
     public static final String CHECK_UPDATE = "CHECK_UPDATE";
     public static final String WIN = "WIN";
+    public static final String SEND_CHET_MESSAGE = "SEND_CHET_MESSAGE";
     public static final String REGRET_CHESS = "REGRET_CHESS";
-    public static final String SEND_MESSAGE = "SEND_MESSAGE";
 }
 
 public class ClientPlayer {
 
     private static ClientPlayer instance;
+    private String userName;
 
     public static ClientPlayer getInstance() {
         if(instance == null){
@@ -316,5 +317,27 @@ public class ClientPlayer {
 
     public boolean isTurn() {
         return this.isTurn;
+    }
+
+    public void sendText(String inputStr) {
+        try {
+            socket = new Socket("localhost",roomPort);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+            StringBuilder builder = new StringBuilder();
+            builder.append(CommandOption.SEND_CHET_MESSAGE);
+            builder.append(":");
+            builder.append(this.userName);
+            builder.append(":");
+            builder.append(inputStr);
+            String info = builder.toString();
+            System.out.println("客户端发送了:"+info);
+            out.println(info);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getUserName() {
+        return userName;
     }
 }

@@ -144,5 +144,6 @@ public class ChessPanel extends JPanel {
         this.chessStack = chessStack;
         this.chetInfo = chetInfo;
         repaint();
+        ChetPanel.getInstance().updateText(chetInfo);
     }
 }
