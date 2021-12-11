@@ -21,8 +21,9 @@ public class GameFrame extends JFrame {
 
     private GameFrame() throws HeadlessException {
 
-        this.setSize(750,480);
-        this.setLocation(300,100);
+//        this.setSize(750,480);
+//        this.setLocation(300,100);
+        this.setBounds(300,100,710,480);
         this.setResizable(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -42,5 +43,13 @@ public class GameFrame extends JFrame {
 
     public static void main(String[] args) {
         getInstance();
+    }
+
+    public void showWin() {
+        JOptionPane.showMessageDialog(null, "恭喜你胜利了！","胜利！",JOptionPane.YES_OPTION);
+    }
+
+    public void showLose() {
+        JOptionPane.showMessageDialog(null, "很遗憾你失败了！","失败！",JOptionPane.YES_OPTION);
     }
 }

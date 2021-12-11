@@ -1,6 +1,7 @@
 package GameFrame;
 
 import Client.ClientPlayer;
+import Server.Model;
 
 import javax.swing.*;
 import java.awt.*;
@@ -80,19 +81,24 @@ public class ChessPanel extends JPanel {
 
         initActionListener();
 
-//        this.setPreferredSize(new Dimension(background.getWidth(null), background.getHeight(null)));
+//        this.setPreferredSize(new Dimension(420, 420));
+//        this.setSize(420,420);
         this.setBounds(0,0,background.getWidth(null), background.getHeight(null));
+//        this.setBounds(0,0,420, 420);
     }
 
     private void initActionListener() {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int curX = (e.getX() - BASEX + BLOCKWIDTH / 2) / BLOCKWIDTH;
-                int curY = (e.getY() - BASEY + BLOCKWIDTH / 2) / BLOCKWIDTH;
-//                chessStack.add(new Chess(curX,curY,ClientPlayer.getInstance().getChessColor()));
-                chessStack = ClientPlayer.getInstance().putChess(ClientPlayer.getInstance().getChessColor(),curX,curY);
-                repaint();
+                if(ClientPlayer.getInstance().isTurn()){
+                    int curX = (e.getX() - BASEX + BLOCKWIDTH / 2) / BLOCKWIDTH;
+                    int curY = (e.getY() - BASEY + BLOCKWIDTH / 2) / BLOCKWIDTH;
+                    if(ClientPlayer.getInstance().checkIndex(curX,curY,0)){
+                        chessStack = ClientPlayer.getInstance().putChess(ClientPlayer.getInstance().getChessColor(),curX,curY);
+                        repaint();
+                    }
+                }
             }
         });
 
@@ -122,12 +128,14 @@ public class ChessPanel extends JPanel {
         if(cursorTriger.isDraw()){
             g.drawImage(cursorTriger.getCursor(), cursorTriger.getX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, cursorTriger.getY() * BLOCKWIDTH + BASEY - BLOCKWIDTH / 2, cursorTriger.getCursor().getWidth(null),cursorTriger.getCursor().getHeight(null),null);
         }
-        for(int i=0;i<chessStack.size();i++){
-            Chess c = chessStack.get(i);
-            if(c.getColor()==Chess.WHITE){
-                g.drawImage(whiteChess,c.getPosX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, c.getPosY() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, Chess.WIDTH, Chess.HEIGHT, null);
-            } else {
-                g.drawImage(blackChess,c.getPosX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, c.getPosY() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, Chess.WIDTH, Chess.HEIGHT, null);
+        if(chessStack!=null){
+            for(int i=0;i<chessStack.size();i++){
+                Chess c = chessStack.get(i);
+                if(c.getColor()==Chess.WHITE){
+                    g.drawImage(whiteChess,c.getPosX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, c.getPosY() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, Chess.WIDTH, Chess.HEIGHT, null);
+                } else {
+                    g.drawImage(blackChess,c.getPosX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, c.getPosY() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, Chess.WIDTH, Chess.HEIGHT, null);
+                }
             }
         }
     }

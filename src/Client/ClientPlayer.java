@@ -5,6 +5,7 @@ import GameFrame.GameFrame;
 import GameFrame.ChessPanel;
 import GameFrame.LoginFrame;
 import GameLobby.GameLobby;
+import Server.Model;
 
 import java.io.*;
 import java.net.Socket;
@@ -15,6 +16,7 @@ class CommandOption{
     public static final String GET_ROOM_MEMBER_NUM = "GET_ROOM_MEMBER_NUM";
     public static final String PUT_CHESS = "PUT_CHESS";
     public static final String CHECK_UPDATE = "CHECK_UPDATE";
+    public static final String WIN = "WIN";
     public static final String REGRET_CHESS = "REGRET_CHESS";
     public static final String SEND_MESSAGE = "SEND_MESSAGE";
 }
@@ -35,7 +37,9 @@ public class ClientPlayer {
     private int roomID;
     private int roomPort;
     private Socket socket;
+    private Model model;
     private boolean isGaming = false;
+    private boolean isTurn;
 
     /**
      * 和主服务器建立连接
@@ -106,6 +110,13 @@ public class ClientPlayer {
     public void init(int roomId, int chessColor) {
         this.roomID = roomId;
         this.chessColor = chessColor;
+        if(chessColor == Chess.BLACK){
+            isTurn = true;
+        } else if(chessColor == Chess.WHITE){
+            isTurn = false;
+        } else {
+            isTurn = false;
+        }
         connectRoomServer();
         enterGame();
     }
@@ -167,10 +178,30 @@ public class ClientPlayer {
             System.out.println("向服务端发送请求: "+ info);
             out.println(info);
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            System.out.println("收到服务端返回状态信息");
-            LinkedList<Chess> chessStack = (LinkedList<Chess>) in.readObject();
-            String chetInfo = (String) in.readObject();
+            model = (Model) in.readObject();
+//            LinkedList<Chess> chessStack = (LinkedList<Chess>) in.readObject();
+//            String chetInfo = (String) in.readObject();
+            LinkedList<Chess> chessStack = model.getChessStack();;
+            System.out.println("收到服务端返回状态信息" + chessStack);
+            String chetInfo = model.getChetInfo();
+            // 如果当前棋子栈上的最后一个棋子的颜色和自己不一样，则轮到自己下棋了，更新 isTurn 为 true 并调用更新重绘界面
+            if((!chessStack.isEmpty())&&(chessStack.getLast().getColor()!=this.chessColor)){
+                this.isTurn = true;
+            }
             ChessPanel.getInstance().update(chessStack,chetInfo);
+            // 检查当前的胜负状况
+            System.out.println("当前的胜负情况:"+model.getWinner());
+            if(model.getWinner()==this.chessColor){
+                GameFrame.getInstance().showWin();
+                this.isGaming = false;
+                this.isTurn = false;
+            } else if(model.getWinner()!=0){
+                GameFrame.getInstance().showLose();
+                this.isGaming = false;
+                this.isTurn = false;
+            } else{
+
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -193,6 +224,7 @@ public class ClientPlayer {
      */
     public LinkedList<Chess> putChess(int chessColor, int curX, int curY) {
         try {
+            this.isTurn = false;
             socket = new Socket("localhost",roomPort);
             PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
             StringBuilder builder = new StringBuilder();
@@ -209,11 +241,52 @@ public class ClientPlayer {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             LinkedList<Chess> chessStack = (LinkedList<Chess>) in.readObject();
             System.out.println("收到服务端返回的 chessStack" + chessStack);
+            // 检查当前是否发生胜利
+            if(checkWin(curX,curY,chessColor)){
+                sendWinMessage(this.chessColor);
+            }
             return chessStack;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void sendWinMessage(int chessColor) {
+        try {
+            socket = new Socket("localhost",roomPort);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+            StringBuilder builder = new StringBuilder();
+            builder.append(CommandOption.WIN);
+            builder.append(":");
+            builder.append(this.chessColor);
+            String info = builder.toString();
+            System.out.println("客户端胜利了:"+info);
+            out.println(info);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean checkWin(int curX, int curY, int chessColor) {
+        int[] x = {0,1,1,1,0,-1,-1,-1};
+        int[] y = {1,1,0,-1,-1,-1,0,1};
+        int[] cnt = {0,0,0,0,0,0,0,0};
+        int[][] chessBoard = model.getBoard();
+        for(int i=0;i<8;i++) {
+            int j=1;
+            for(; checkIndex(curX+x[i]*j,curY+y[i]*j)
+                    &&chessBoard[curX+x[i]*j][curY+y[i]*j] == chessColor; j++) {
+                cnt[i]++;
+            }
+        }
+        for(int i=0;i<4;i++) {
+            if(cnt[i]+cnt[i+4]+1>=5) {
+                System.out.println(this.chessColor+"赢了");
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -227,4 +300,21 @@ public class ClientPlayer {
         ClientPlayer.getInstance().login();
     }
 
+    /**
+     * 检查当前下棋位置是否合理
+     * @param curX x坐标
+     * @param curY y坐标
+     * @return
+     */
+    public boolean checkIndex(int curX, int curY) {
+        return model.checkIndex(curX, curY);
+    }
+
+    public boolean checkIndex(int curX, int curY, int i) {
+        return model.checkIndex(curX, curY, i);
+    }
+
+    public boolean isTurn() {
+        return this.isTurn;
+    }
 }

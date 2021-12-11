@@ -11,20 +11,21 @@ class CommandOption{
     public static final String PUT_CHESS = "PUT_CHESS";
     public static final String REGRET_CHESS = "REGRET_CHESS";
     public static final String CHECK_UPDATE = "CHECK_UPDATE";
+    public static final String WIN = "WIN";
     public static final String SEND_MESSAGE = "SEND_MESSAGE";
 }
 
 public class RoomServer implements Serializable {
 
-    private static int roomMemberNum = 0;
-
-    public static int getRoomMemberNum() {
-        return roomMemberNum;
-    }
-
-    public static void setRoomMemberNum(int roomMemberNum) {
-        RoomServer.roomMemberNum = roomMemberNum;
-    }
+//    private static int roomMemberNum = 0;
+//
+//    public static int getRoomMemberNum() {
+//        return roomMemberNum;
+//    }
+//
+//    public static void setRoomMemberNum(int roomMemberNum) {
+//        RoomServer.roomMemberNum = roomMemberNum;
+//    }
 
 
 
@@ -108,9 +109,15 @@ public class RoomServer implements Serializable {
         }
         // acquire = "CHECK_UPDATE"
         else if(acquire.startsWith(CommandOption.CHECK_UPDATE)){
-            System.out.println("向客户端返回棋局信息");
-            out.writeObject(Model.getInstance().getChessStack());
-            out.writeObject(Model.getInstance().getChetInfo());
+            System.out.println("向客户端返回棋局信息"+Model.getInstance().getChessStack());
+            out.writeObject(Model.getInstance());
+        }
+        // acquire = "WIN:chessColor"
+        else if(acquire.startsWith(CommandOption.WIN)){
+            String[] info = acquire.split(":");
+            int winChessColor = Integer.parseInt(info[1]);
+            System.out.println(winChessColor+"赢了");
+            Model.getInstance().setWinner(winChessColor);
         }
     }
 
