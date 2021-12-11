@@ -92,6 +92,13 @@ public class ChetPanel extends JPanel {
                 localUpdateText();
             }
         });
+
+        regretButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ClientPlayer.getInstance().regretChess();
+            }
+        });
     }
 
     private void localUpdateText() {

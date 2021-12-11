@@ -340,4 +340,8 @@ public class ClientPlayer {
     public String getUserName() {
         return userName;
     }
+
+    public void regretChess() {
+
+    }
 }
