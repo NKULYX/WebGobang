@@ -50,27 +50,48 @@ public class MainServer {
                 try {
                     while(true) {
                         Socket socket = serverSocket.accept();  // 监听客户端发来的房间选择
-                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
-                        String line = in.readLine();
-                        System.out.println("收到客户端消息:"+line);
-                        // 发送房间列表信息
-                        if(line.contains("GET_ROOM_MEMBER_NUM")){
-                            ObjectOutputStream o = new ObjectOutputStream(socket.getOutputStream());
-                            o.writeObject(roomMemberNum);
-                        }
-                        // 读取用户选择的房间号
-                        line = in.readLine();
-                        Integer roomId = Integer.parseInt(line);  // 获取房间号
-//                        if(!roomBegined.get(roomId)){
-//                            RoomServer room = new RoomServer(roomId,PORT+1+roomId);  // 创建对应房间 roomPort = 8081 + i
-//                            roomList.put(roomId, room);   // 将服务端加入roomServer
-//                            roomBegined.set(roomId,true);
-//                        }
-                        roomList.get(roomId).startSever(PORT+1+roomId);
-                        roomMemberNum.set(roomId,roomMemberNum.get(roomId)+1);
-                        int newRoomPort = roomId+PORT+1;
-                        out.println("a:"+newRoomPort);
+                        new Thread(){
+                            @Override
+                            public void run() {
+                                try {
+                                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                                    PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+                                    String line = in.readLine();
+                                    System.out.println("收到客户端消息:"+line);
+                                    // 发送房间列表信息
+                                    if(line.contains("GET_ROOM_MEMBER_NUM")){
+                                        ObjectOutputStream o = new ObjectOutputStream(socket.getOutputStream());
+                                        o.writeObject(roomMemberNum);
+                                    }
+                                    // 读取用户选择的房间号
+            //                        String line = in.readLine();
+                                    else if (line.startsWith("SET_ROOMID")){
+                                        String[] info = line.split(":");
+                                        Integer roomId = Integer.parseInt(info[1]);  // 获取房间号
+                //                        if(!roomBegined.get(roomId)){
+                //                            RoomServer room = new RoomServer(roomId,PORT+1+roomId);  // 创建对应房间 roomPort = 8081 + i
+                //                            roomList.put(roomId, room);   // 将服务端加入roomServer
+                //                            roomBegined.set(roomId,true);
+                //                        }
+                                        roomList.get(roomId).startSever(PORT+1+roomId);
+                                        roomMemberNum.set(roomId,roomMemberNum.get(roomId)+1);
+                                        int newRoomPort = roomId+PORT+1;
+                                        out.println("a:"+newRoomPort);
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }.start();
+//                        new Thread(){
+//                            @Override
+//                            public void run() {
+//                                try {
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        }.start();
                     }
 
                 } catch (IOException e) {

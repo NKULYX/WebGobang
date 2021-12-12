@@ -73,7 +73,7 @@ public class ClientPlayer {
      * 进入游戏大厅
      */
     public void enterGameLobby() {
-        GameLobby.getInstance();
+        GameLobby.getInstance().start();
     }
 
     /**
@@ -116,6 +116,7 @@ public class ClientPlayer {
         } else if(chessColor == Chess.WHITE){
             isTurn = false;
         } else {
+            // 观战者永世不得turn
             isTurn = false;
         }
         connectRoomServer();
@@ -129,7 +130,7 @@ public class ClientPlayer {
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
-            out.println(roomID);
+            out.println("SET_ROOMID:"+roomID);
             while(true){
                 String line = in.readLine();
                 if(line.startsWith("a:")){
@@ -186,22 +187,22 @@ public class ClientPlayer {
             System.out.println("收到服务端返回状态信息" + chessStack);
             String chetInfo = model.getChetInfo();
             // 如果当前棋子栈上的最后一个棋子的颜色和自己不一样，则轮到自己下棋了，更新 isTurn 为 true 并调用更新重绘界面
-            if((!chessStack.isEmpty())&&(chessStack.getLast().getColor()!=this.chessColor)){
+            if((!chessStack.isEmpty())&&(chessStack.getLast().getColor()!=this.chessColor)&&(this.chessColor!=Chess.SPACE)){
                 this.isTurn = true;
             }
             ChessPanel.getInstance().update(chessStack,chetInfo);
             // 检查当前的胜负状况
             System.out.println("当前的胜负情况:"+model.getWinner());
-            if(model.getWinner()==this.chessColor){
-                GameFrame.getInstance().showWin();
-                this.isGaming = false;
-                this.isTurn = false;
-            } else if(model.getWinner()!=0){
-                GameFrame.getInstance().showLose();
-                this.isGaming = false;
-                this.isTurn = false;
-            } else{
-
+            if(model.getWinner()!=Chess.SPACE){
+                if(model.getWinner()==this.chessColor){
+                    GameFrame.getInstance().showWin();
+                    this.isGaming = false;
+                    this.isTurn = false;
+                } else {
+                    GameFrame.getInstance().showLose();
+                    this.isGaming = false;
+                    this.isTurn = false;
+                }
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -342,6 +343,22 @@ public class ClientPlayer {
     }
 
     public void regretChess() {
+        try {
+            socket = new Socket("localhost",roomPort);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+            StringBuilder builder = new StringBuilder();
+            builder.append(CommandOption.REGRET_CHESS);
+            builder.append(":");
+            builder.append(this.chessColor);
+            String info = builder.toString();
+            System.out.println("客户端发送了:"+info);
+            out.println(info);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    public boolean isGaming() {
+        return isGaming;
     }
 }

@@ -6,14 +6,14 @@ import java.io.Serializable;
 import java.util.LinkedList;
 
 public class Model implements Serializable {
-    private static Model instance;
+//    private static Model instance;
 
-    public static Model getInstance() {
-        if(instance==null){
-            instance = new Model();
-        }
-        return instance;
-    }
+//    public static Model getInstance() {
+//        if(instance==null){
+//            instance = new Model();
+//        }
+//        return instance;
+//    }
 
     public Model() {
         chessStack = new LinkedList<Chess>();
@@ -27,6 +27,15 @@ public class Model implements Serializable {
     private LinkedList<Chess> chessStack;
     private String chetInfo;
     private int winner = SPACE;
+    private int regretChessColor;
+
+    public int getRegretChessColor() {
+        return regretChessColor;
+    }
+
+    public void setRegretChessColor(int regretChessColor) {
+        this.regretChessColor = regretChessColor;
+    }
 
     public void putChess(int chessColor, int x, int y) {
         Chess chess = new Chess(x,y,chessColor);
@@ -75,7 +84,6 @@ public class Model implements Serializable {
     public void setWinner(int winChessColor) {
         this.winner = winChessColor;
     }
-
 
     public void updateChetInfo(String userName, String chetStr) {
         StringBuilder builder = new StringBuilder();

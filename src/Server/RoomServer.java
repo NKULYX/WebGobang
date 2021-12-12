@@ -30,6 +30,7 @@ public class RoomServer implements Serializable {
     private ServerSocket roomServerSocket = null;
     private int roomID;
     private int roomPort;
+    private Model model;
 
     public RoomServer(int roomId){
         this.roomID = roomId;
@@ -50,6 +51,7 @@ public class RoomServer implements Serializable {
             try {
                 this.roomPort = port;
                 this.roomServerSocket = new ServerSocket(roomPort);
+                model = new Model();
                 beginServer();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -69,7 +71,7 @@ public class RoomServer implements Serializable {
         new Thread(){
             @Override
             public void run() {
-                synchronized(Model.getInstance()){
+                synchronized(model){
                     while(true){
                         try {
                             Socket socket = roomServerSocket.accept();
@@ -98,31 +100,37 @@ public class RoomServer implements Serializable {
         // acquire = "PUT_CHESS:chessColor:x:y"
         if(acquire.startsWith(CommandOption.PUT_CHESS)){
             String[] info = acquire.split(":");
-            Model.getInstance().putChess(Integer.parseInt(info[1]),Integer.parseInt(info[2]),Integer.parseInt(info[3]));
-            out.writeObject(Model.getInstance().getChessStack());
+            model.putChess(Integer.parseInt(info[1]),Integer.parseInt(info[2]),Integer.parseInt(info[3]));
+            out.writeObject(model.getChessStack());
         }
         // acquire = "REGRET_CHESS"
         else if(acquire.startsWith(CommandOption.REGRET_CHESS)) {
-            Model.getInstance().regretChess();
+            model.regretChess();
         }
         // acquire = "CHECK_UPDATE"
         else if(acquire.startsWith(CommandOption.CHECK_UPDATE)){
-            System.out.println("向客户端返回棋局信息"+Model.getInstance().getChessStack());
-            out.writeObject(Model.getInstance());
+            System.out.println("向客户端返回棋局信息"+model.getChessStack());
+            out.writeObject(model);
         }
         // acquire = "WIN:chessColor"
         else if(acquire.startsWith(CommandOption.WIN)){
             String[] info = acquire.split(":");
             int winChessColor = Integer.parseInt(info[1]);
             System.out.println(winChessColor+"赢了");
-            Model.getInstance().setWinner(winChessColor);
+            model.setWinner(winChessColor);
         }
         // acquire = "SEND_CHET_MESSAGE:userName:chetInfo"
         else if(acquire.startsWith(CommandOption.SEND_CHET_MESSAGE)){
             String[] info = acquire.split(":");
             String userName = info[1];
             String chetStr = info[2];
-            Model.getInstance().updateChetInfo(userName,chetStr);
+            model.updateChetInfo(userName,chetStr);
+        }
+        // acquire = "REGRET_CHESS:chessColor"
+        else if(acquire.startsWith(CommandOption.REGRET_CHESS)){
+            String[] info = acquire.split(":");
+            int chessColor = Integer.parseInt(info[1]);
+            model.setRegretChessColor(chessColor);
         }
     }
 

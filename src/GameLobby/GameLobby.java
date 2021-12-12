@@ -61,7 +61,12 @@ public class GameLobby extends JFrame {
             clientNum.setOpaque(true);
             clientNum.setBackground(new Color(0,98,132));
 
-            JButton enterButton = new JButton("加入房间");
+            JButton enterButton = new JButton();
+            if(roomMemberNum.get(i)<2){
+                enterButton.setText("加入房间");
+            } else {
+                enterButton.setText("加入观战");
+            }
             enterButton.setName(Integer.toString(i));
             enterButton.setBounds(90,0,90,30);
             enterButton.setBackground(new Color(0,98,132));
@@ -83,7 +88,7 @@ public class GameLobby extends JFrame {
                         System.out.println("chessColor"+chessColor);
                         ClientPlayer.getInstance().init(buttonID,chessColor);
                     } else {
-                        button.setText("观战");
+                        ClientPlayer.getInstance().init(buttonID,Chess.SPACE);
                     }
 
                 }
@@ -130,5 +135,21 @@ public class GameLobby extends JFrame {
 
     public static void main(String[] args) {
         GameLobby.getInstance();
+    }
+
+    public void start() {
+        new Thread(){
+            @Override
+            public void run() {
+                while(!ClientPlayer.getInstance().isGaming()){
+                    try {
+                        roomMemberNum = ClientPlayer.getInstance().getRoomList();
+                        sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
     }
 }
