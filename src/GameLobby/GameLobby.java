@@ -2,14 +2,12 @@ package GameLobby;
 
 import Client.ClientPlayer;
 import GameFrame.Chess;
-import Server.RoomServer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class GameLobby extends JFrame {
     private static GameLobby instance;
@@ -24,13 +22,13 @@ public class GameLobby extends JFrame {
     private static JPanel mainPanel;
     private static JScrollPane scrollPane;
     private static int roomNum = 12;
-    private static ArrayList<JLabel> roomMemberNumLabel;
-    private static ArrayList<JButton> roomEnterButton;
+    private static ArrayList<JLabel> roomMemberNumLabel;        // 房间人数的标签
+    private static ArrayList<JButton> roomEnterButton;      // 进入房间的按钮
     private static ArrayList<Integer> roomMemberNum;
 
     private GameLobby() {
 
-        roomMemberNum = ClientPlayer.getInstance().getRoomList();
+        roomMemberNum = ClientPlayer.getInstance().getRoomList();       // 获取房间人数信息
 
         roomMemberNumLabel = new ArrayList<JLabel>();
         roomEnterButton = new ArrayList<JButton>();
@@ -64,6 +62,7 @@ public class GameLobby extends JFrame {
             clientNum.setBackground(new Color(0,98,132));
 
             JButton enterButton = new JButton();
+            // 如果当前房间中的人数小于2人 则可以加入游戏 否则只能加入观战
             if(roomMemberNum.get(i)<2){
                 enterButton.setText("加入房间");
             } else {
@@ -74,14 +73,14 @@ public class GameLobby extends JFrame {
             enterButton.setName(Integer.toString(i));
             enterButton.setBounds(90,0,90,30);
             enterButton.setBackground(new Color(0,98,132));
-            enterButton.addActionListener(new ActionListener() {
-
+            enterButton.addActionListener(new ActionListener() {        // 给加入房间的按钮添加事件监听
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JButton button = (JButton) e.getSource();
                     int buttonID = Integer.parseInt(button.getName());
                     ClientPlayer.getInstance().setRoomID(buttonID);     // 设置客户端的房间号
-                    int currMemberNum = GameLobby.getInstance().updateRoomMemberNum(buttonID,1);
+                    int currMemberNum = GameLobby.getInstance().updateRoomMemberNum(buttonID,1);        // 更新房间用户数量
+                    // 设置当前进入房间的用户身份
                     if(currMemberNum<=2){
                         int chessColor;
                         if(currMemberNum==1){
@@ -94,7 +93,7 @@ public class GameLobby extends JFrame {
                     } else {
                         ClientPlayer.getInstance().init(buttonID,Chess.SPACE);
                     }
-
+                    GameLobby.getInstance().setVisible(false);
                 }
             });
 
@@ -117,6 +116,12 @@ public class GameLobby extends JFrame {
         this.setVisible(true);
     }
 
+    /**
+     * 更新房间人数标签上的信息
+     * @param roomId 房间号
+     * @param change 变化
+     * @return 返回当前房间中的人数
+     */
     private int updateRoomMemberNum(int roomId, int change) {
         JLabel label = this.roomMemberNumLabel.get(roomId);
         String info = label.getText();
@@ -137,18 +142,18 @@ public class GameLobby extends JFrame {
         return prensentNum;
     }
 
-    public static void main(String[] args) {
-        GameLobby.getInstance();
-    }
-
+    /**
+     * 启动大厅线程，不断向主服务器请求信息更新
+     */
     public void start() {
         System.out.println("大厅开始发起更新请求");
         new Thread(){
             @Override
             public void run() {
-                System.out.println(ClientPlayer.getInstance().isGaming());
+                // 当用户还没有进入游戏时，也就是还在选择房间的阶段时
                 while(!ClientPlayer.getInstance().isGaming()){
                     System.out.println("向主服务器请求房间信息");
+                    // 每 0.1 秒向主服务器请求一次房间信息
                     try {
                         roomMemberNum = ClientPlayer.getInstance().getRoomList();
                         updataRoomInfo();
@@ -161,6 +166,9 @@ public class GameLobby extends JFrame {
         }.start();
     }
 
+    /**
+     * 更新房间人数 label 和 进入按钮的提示信息
+     */
     private void updataRoomInfo() {
         for(int i=0;i<roomNum;i++){
             int num = roomMemberNum.get(i);
@@ -172,4 +180,9 @@ public class GameLobby extends JFrame {
             }
         }
     }
+
+//    public static void main(String[] args) {
+//        GameLobby.getInstance();
+//    }
+
 }

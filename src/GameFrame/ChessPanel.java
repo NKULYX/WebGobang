@@ -9,6 +9,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
+/**
+ * 鼠标光标类<br>
+ * 方便再游戏界面内绘制鼠标的信息
+ */
 class CursorTriger{
     int x;
     int y;
@@ -60,18 +64,18 @@ public class ChessPanel extends JPanel {
         return instance;
     }
 
-    private static final int BASEX = 41;
-    private static final int BASEY = 41;
-    private static final int BLOCKWIDTH = 24;
+    private static final int BASEX = 41;        // 棋盘的基准 BASEX
+    private static final int BASEY = 41;        // 棋盘的基准 BASEY
+    private static final int BLOCKWIDTH = 24;       // 棋盘每个格子的宽度
     private static Image whiteChess;
     private static Image blackChess;
     private static Image background;
     private static CursorTriger cursorTriger;
 
-    private static LinkedList<Chess> chessStack = new LinkedList<Chess>();
-    private static String chetInfo;
+    private static LinkedList<Chess> chessStack = new LinkedList<Chess>();      // 本地棋子栈副本
+    private static String chetInfo;     // 本地聊天信息副本
 
-    private static int reshowIndex = 0;
+    private static int reshowIndex = 0;     // 复盘栈指针 无需复盘操作时值为0
 
     public ChessPanel() {
 
@@ -82,10 +86,7 @@ public class ChessPanel extends JPanel {
 
         initActionListener();
 
-//        this.setPreferredSize(new Dimension(420, 420));
-//        this.setSize(420,420);
         this.setBounds(0,0,background.getWidth(null), background.getHeight(null));
-//        this.setBounds(0,0,420, 420);
     }
 
     private void initActionListener() {
@@ -126,9 +127,11 @@ public class ChessPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(background,0,0,background.getWidth(null),background.getHeight(null),null);
+        // 绘制鼠标位置 焦点信息
         if(cursorTriger.isDraw()){
             g.drawImage(cursorTriger.getCursor(), cursorTriger.getX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, cursorTriger.getY() * BLOCKWIDTH + BASEY - BLOCKWIDTH / 2, cursorTriger.getCursor().getWidth(null),cursorTriger.getCursor().getHeight(null),null);
         }
+        // 如果棋子栈非空并且复盘栈指针为0 则绘制棋子
         if(chessStack!=null&&(reshowIndex==0)){
             for(int i=0;(i<chessStack.size());i++){
                 Chess c = chessStack.get(i);
@@ -138,7 +141,9 @@ public class ChessPanel extends JPanel {
                     g.drawImage(blackChess,c.getPosX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, c.getPosY() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, Chess.WIDTH, Chess.HEIGHT, null);
                 }
             }
-        } else if(chessStack!=null&&(reshowIndex!=0)){
+        }
+        // 如果棋子栈不为空，且当前正在进行复盘操作
+        else if(chessStack!=null&&(reshowIndex!=0)){
             for(int i=0;(i<reshowIndex);i++){
                 Chess c = chessStack.get(i);
                 if(c.getColor()==Chess.WHITE){
@@ -150,15 +155,30 @@ public class ChessPanel extends JPanel {
         }
     }
 
+    /**
+     * 更新本地的棋子栈和聊天信息
+     * @param chessStack 棋子栈
+     * @param chetInfo 聊天信息
+     */
     public void update(LinkedList<Chess> chessStack, String chetInfo) {
         this.chessStack = chessStack;
         this.chetInfo = chetInfo;
+        // 重绘游戏界面 展示更新内容
         repaint();
         ChetPanel.getInstance().updateText(chetInfo);
     }
 
+    /**
+     * 初始化复盘信息
+     */
+    public void initRePlay() {
+        this.reshowIndex = 0;
+    }
+
+    /**
+     * 复盘操作
+     */
     public void reShow() {
-        // TODO
         if(reshowIndex<chessStack.size()){
             this.reshowIndex++;
             repaint();
@@ -167,7 +187,4 @@ public class ChessPanel extends JPanel {
         }
     }
 
-    public void initRePlay() {
-        this.reshowIndex = 0;
-    }
 }

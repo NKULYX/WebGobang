@@ -1,7 +1,5 @@
 package GameFrame;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.Serializable;
 
 public class Chess implements Serializable {

@@ -3,7 +3,6 @@ package GameFrame;
 import Client.ClientPlayer;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -77,6 +76,7 @@ public class ChetPanel extends JPanel {
     }
 
     private void initActionListener() {
+        // 聊天信息输入框
         inputPane.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -86,6 +86,7 @@ public class ChetPanel extends JPanel {
             }
         });
 
+        // 发送按钮
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -93,6 +94,7 @@ public class ChetPanel extends JPanel {
             }
         });
 
+        // 悔棋按钮
         regretButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -107,6 +109,7 @@ public class ChetPanel extends JPanel {
             }
         });
 
+        // 认输按钮
         surrenderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -115,10 +118,13 @@ public class ChetPanel extends JPanel {
         });
     }
 
+    /**
+     * 本地聊天信息刷新
+     */
     private void localUpdateText() {
         String inputStr = inputPane.getText();
         inputPane.setText(null);
-        ClientPlayer.getInstance().sendText(inputStr);
+        ClientPlayer.getInstance().sendChetMessage(inputStr);
         String chetInfo = chetPane.getText();
         StringBuilder builder = new StringBuilder();
         builder.append(chetInfo);
@@ -131,11 +137,17 @@ public class ChetPanel extends JPanel {
         chetPane.setText(builder.toString());
     }
 
-
+    /**
+     * 通过远程请求后的聊天信息刷新
+     * @param chetInfo
+     */
     public void updateText(String chetInfo) {
         chetPane.setText(chetInfo);
     }
 
+    /**
+     * 初始化复盘操作
+     */
     public void initRePlay() {
         regretButton.setText("复盘");
         ChessPanel.getInstance().initRePlay();

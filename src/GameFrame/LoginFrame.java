@@ -29,8 +29,6 @@ public class LoginFrame extends JFrame {
 
     private LoginFrame() throws HeadlessException {
 
-        super();
-
         this.setTitle("登录");
         this.setLocation(500,200);
         this.setSize(new Dimension(300, 300));
@@ -74,24 +72,33 @@ public class LoginFrame extends JFrame {
         initActionListener();
     }
 
+    /**
+     * 初始化事件监听
+     */
     private void initActionListener() {
         loginButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 String userName = userNameLabel.getText();
                 String password = userPasswordTextField.getText();
+                // 如果认证成功
                 if(userVerify(userName, password)){
                     ClientPlayer.getInstance().setUserName(userName);
                     ClientPlayer.getInstance().enterGameLobby();
+                    LoginFrame.getInstance().setVisible(false);
+                } else{
+                    JOptionPane.showMessageDialog(null, "用户名或密码错误！","验证失败",JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
     }
-    private String getClientName() {
-        return userNameTextField.getText();
-    }
 
+    /**
+     * 用户信息验证
+     * @param userName 用户名
+     * @param password 密码
+     * @return 返回是否通过验证
+     */
     private boolean userVerify(String userName, String password) {
         return true;
     }

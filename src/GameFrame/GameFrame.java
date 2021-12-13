@@ -1,6 +1,7 @@
 package GameFrame;
 
 import Client.ClientPlayer;
+import GameLobby.GameLobby;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,8 +27,6 @@ public class GameFrame extends JFrame {
 
     private GameFrame() throws HeadlessException {
 
-//        this.setSize(750,480);
-//        this.setLocation(300,100);
         this.setBounds(300,100,710,480);
         this.setResizable(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -45,32 +44,39 @@ public class GameFrame extends JFrame {
         chetPanel = ChetPanel.getInstance();
         this.getContentPane().add(chessPanel);
         this.getContentPane().add(chetPanel);
-//        this.pack();
         this.setVisible(true);
     }
 
+    /**
+     * 初始化事件监听
+     */
     private void initActionListener() {
         returnMenu.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JMenuItem rm = (JMenuItem) e.getSource();
-                if(rm.isSelected()){
-                    ClientPlayer.getInstance().returnGameLobby();
-                }
+                System.out.println("选择返回游戏大厅");
+                ClientPlayer.getInstance().returnGameLobby();
             }
         });
     }
 
-
-    public static void main(String[] args) {
-        getInstance();
-    }
-
+    /**
+     * 展示胜利提示
+     */
     public void showWin() {
-        JOptionPane.showMessageDialog(null, "恭喜你胜利了！","胜利！",JOptionPane.YES_OPTION);
+        JOptionPane.showMessageDialog(null, "恭喜你胜利了！","胜利！",JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * 展示失败提示
+     */
     public void showLose() {
-        JOptionPane.showMessageDialog(null, "很遗憾你失败了！","失败！",JOptionPane.YES_OPTION);
+        JOptionPane.showMessageDialog(null, "很遗憾你失败了！","失败！",JOptionPane.ERROR_MESSAGE);
     }
+
+//    public static void main(String[] args) {
+//        getInstance();
+//    }
+
+
 }
