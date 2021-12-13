@@ -29,12 +29,23 @@ public class Model implements Serializable {
     private int winner = SPACE;
     private int regretChessColor;
 
+    private boolean agreeRegret = false;
+
     public int getRegretChessColor() {
         return regretChessColor;
     }
 
     public void setRegretChessColor(int regretChessColor) {
         this.regretChessColor = regretChessColor;
+    }
+
+    public boolean isAgreeRegret() {
+        return agreeRegret;
+    }
+
+    public void setAgreeRegret(boolean agreeRegret) {
+        this.agreeRegret = agreeRegret;
+        regretChessColor = Chess.SPACE;
     }
 
     public void putChess(int chessColor, int x, int y) {
@@ -45,7 +56,9 @@ public class Model implements Serializable {
     }
 
     public void regretChess() {
-        Chess chess = chessStack.pop();
+        Chess chess = chessStack.removeLast();
+        chessBoard[chess.getPosX()][chess.getPosY()] = SPACE;
+        chess = chessStack.removeLast();
         chessBoard[chess.getPosX()][chess.getPosY()] = SPACE;
     }
 

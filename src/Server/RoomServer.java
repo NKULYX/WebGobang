@@ -11,6 +11,7 @@ class CommandOption{
     public static final String CHECK_UPDATE = "CHECK_UPDATE";
     public static final String WIN = "WIN";
     public static final String SEND_CHET_MESSAGE = "SEND_CHET_MESSAGE";
+    public static final String AGREE_REGRET = "AGREE_REGRET";
 }
 
 public class RoomServer implements Serializable {
@@ -105,10 +106,10 @@ public class RoomServer implements Serializable {
             out.writeObject(model.getChessStack());
         }
 
-        // acquire = "REGRET_CHESS"
-        else if(acquire.startsWith(CommandOption.REGRET_CHESS)) {
-            model.regretChess();
-        }
+//        // acquire = "REGRET_CHESS"
+//        else if(acquire.startsWith(CommandOption.REGRET_CHESS)) {
+//            model.regretChess();
+//        }
 
         // acquire = "CHECK_UPDATE"
         else if(acquire.startsWith(CommandOption.CHECK_UPDATE)){
@@ -123,6 +124,7 @@ public class RoomServer implements Serializable {
             System.out.println(winChessColor+"赢了");
             model.setWinner(winChessColor);
         }
+
         // acquire = "SEND_CHET_MESSAGE:userName:chetInfo"
         else if(acquire.startsWith(CommandOption.SEND_CHET_MESSAGE)){
             String[] info = acquire.split(":");
@@ -130,15 +132,25 @@ public class RoomServer implements Serializable {
             String chetStr = info[2];
             model.updateChetInfo(userName,chetStr);
         }
+
         // acquire = "REGRET_CHESS:chessColor"
         else if(acquire.startsWith(CommandOption.REGRET_CHESS)){
             String[] info = acquire.split(":");
             int chessColor = Integer.parseInt(info[1]);
+            System.out.println(chessColor+"想悔棋");
             model.setRegretChessColor(chessColor);
         }
+
+        // acquire = "AGREE_REGRET:0/1";
+        else if(acquire.startsWith(CommandOption.AGREE_REGRET)){
+            String[] info = acquire.split(":");
+            if(Integer.parseInt(info[1]) == 0){
+                model.setAgreeRegret(true);
+                model.regretChess();
+            } else {
+                model.setAgreeRegret(false);
+            }
+        }
     }
-
-
-
 
 }

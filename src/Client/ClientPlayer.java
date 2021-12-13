@@ -7,6 +7,7 @@ import GameFrame.LoginFrame;
 import GameLobby.GameLobby;
 import Server.Model;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ class CommandOption{
     public static final String WIN = "WIN";
     public static final String SEND_CHET_MESSAGE = "SEND_CHET_MESSAGE";
     public static final String REGRET_CHESS = "REGRET_CHESS";
+    public static final String AGREE_REGRET = "AGREE_REGRET";
 }
 
 public class ClientPlayer {
@@ -191,11 +193,15 @@ public class ClientPlayer {
             LinkedList<Chess> chessStack = model.getChessStack();;
             System.out.println("收到服务端返回状态信息" + chessStack);
             String chetInfo = model.getChetInfo();
+
+            // 重绘棋局信息并更新聊天信息
+            ChessPanel.getInstance().update(chessStack,chetInfo);
+
             // 如果当前棋子栈上的最后一个棋子的颜色和自己不一样，则轮到自己下棋了，更新 isTurn 为 true 并调用更新重绘界面
             if((!chessStack.isEmpty())&&(chessStack.getLast().getColor()!=this.chessColor)&&(this.chessColor!=Chess.SPACE)){
                 this.isTurn = true;
             }
-            ChessPanel.getInstance().update(chessStack,chetInfo);
+
             // 检查当前的胜负状况
             System.out.println("当前的胜负情况:"+model.getWinner());
             if(model.getWinner()!=Chess.SPACE){
@@ -209,7 +215,33 @@ public class ClientPlayer {
                     this.isTurn = false;
                 }
             }
+
+            // 检查是否有悔棋请求 如果悔棋者的颜色和自己不同并且不是SPACE 则需要本方去确认是否同意悔棋请求
+            if((model.getRegretChessColor()!=Chess.SPACE)&&model.getRegretChessColor()==(-1*this.chessColor)){
+                askAgreeRegret();
+            }
         } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void askAgreeRegret() {
+//         JOptionPane.showMessageDialog(null, "对方想要悔棋，是否同意悔棋请求","悔棋请求",JOptionPane.OK_CANCEL_OPTION);
+        int option = JOptionPane.showConfirmDialog(null, "对方想要悔棋，是否同意悔棋请求","悔棋请求",JOptionPane.OK_CANCEL_OPTION);
+        System.out.println(option);
+        sendAgreeRegretMessage(option);
+    }
+
+    private void sendAgreeRegretMessage(int option) {
+        try {
+            socket = new Socket("localhost",roomPort);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+            StringBuilder builder = new StringBuilder();
+            builder.append(CommandOption.AGREE_REGRET);
+            builder.append(":");
+            builder.append(option);
+            out.println(builder.toString());
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -259,6 +291,10 @@ public class ClientPlayer {
         return null;
     }
 
+    /**
+     * 向房间服务器发送胜负信息
+     * @param chessColor
+     */
     private void sendWinMessage(int chessColor) {
         try {
             socket = new Socket("localhost",roomPort);
@@ -275,6 +311,13 @@ public class ClientPlayer {
         }
     }
 
+    /**
+     * 检查当前是否有胜负发生
+     * @param curX
+     * @param curY
+     * @param chessColor
+     * @return
+     */
     private boolean checkWin(int curX, int curY, int chessColor) {
         int[] x = {0,1,1,1,0,-1,-1,-1};
         int[] y = {1,1,0,-1,-1,-1,0,1};
@@ -294,17 +337,6 @@ public class ClientPlayer {
             }
         }
         return false;
-    }
-
-    /**
-     * 玩家客户端启动<br>
-     * 和主服务器建立连接<br>
-     * 进入登录界面
-     * @param args
-     */
-    public static void main(String[] args) {
-        ClientPlayer.getInstance().connectMainServer();
-        ClientPlayer.getInstance().login();
     }
 
     /**
@@ -365,5 +397,16 @@ public class ClientPlayer {
 
     public boolean isGaming() {
         return isGaming;
+    }
+
+    /**
+     * 玩家客户端启动<br>
+     * 和主服务器建立连接<br>
+     * 进入登录界面
+     * @param args
+     */
+    public static void main(String[] args) {
+        ClientPlayer.getInstance().connectMainServer();
+        ClientPlayer.getInstance().login();
     }
 }
