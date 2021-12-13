@@ -31,6 +31,15 @@ public class Model implements Serializable {
     private boolean agreeRegret = false;
     private int surrenderChessColor;
     private boolean agreeSurrender = false;
+    private int reshowIndex = 0;
+
+    public int getReshowIndex() {
+        return reshowIndex;
+    }
+
+    public void setReshowIndex(int reshowIndex) {
+        this.reshowIndex = reshowIndex;
+    }
 
     public boolean isAgreeSurrender() {
         return agreeSurrender;

@@ -3,6 +3,7 @@ package Client;
 import GameFrame.Chess;
 import GameFrame.GameFrame;
 import GameFrame.ChessPanel;
+import GameFrame.ChetPanel;
 import GameFrame.LoginFrame;
 import GameLobby.GameLobby;
 import Server.Model;
@@ -216,6 +217,7 @@ public class ClientPlayer {
                     this.isGaming = false;
                     this.isTurn = false;
                 }
+                initRePlay();
             }
 
             // 检查是否有悔棋请求 如果悔棋者的颜色和自己不同并且不是SPACE 则需要本方去确认是否同意悔棋请求
@@ -230,6 +232,10 @@ public class ClientPlayer {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private void initRePlay() {
+        ChetPanel.getInstance().initRePlay();
     }
 
     private void askAgreeSurrender() {
@@ -441,5 +447,22 @@ public class ClientPlayer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void reShow() {
+        ChessPanel.getInstance().reShow();
+    }
+
+    public void returnGameLobby() {
+        if (isGaming) {
+            JOptionPane.showMessageDialog(null,"您正在游戏中，不能返回","返回游戏大厅",JOptionPane.OK_OPTION);
+        } else {
+            GameFrame.getInstance().setVisible(false);
+            GameLobby.getInstance().setVisible(true);
+        }
+    }
+
+    public void finishReshow() {
+        JOptionPane.showMessageDialog(null, "已经完成复盘操作","复盘结束",JOptionPane.OK_OPTION);
     }
 }

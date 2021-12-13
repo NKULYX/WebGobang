@@ -96,7 +96,14 @@ public class ChetPanel extends JPanel {
         regretButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ClientPlayer.getInstance().regretChess();
+                if(regretButton.getText().contains("悔棋")){
+                    ClientPlayer.getInstance().regretChess();
+                } else{
+                    if (regretButton.getText().contains("复盘")){
+                        regretButton.setText("下一步");
+                    }
+                    ClientPlayer.getInstance().reShow();
+                }
             }
         });
 
@@ -127,5 +134,10 @@ public class ChetPanel extends JPanel {
 
     public void updateText(String chetInfo) {
         chetPane.setText(chetInfo);
+    }
+
+    public void initRePlay() {
+        regretButton.setText("复盘");
+        ChessPanel.getInstance().initRePlay();
     }
 }

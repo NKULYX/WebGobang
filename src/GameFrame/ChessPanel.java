@@ -1,7 +1,6 @@
 package GameFrame;
 
 import Client.ClientPlayer;
-import Server.Model;
 
 import javax.swing.*;
 import java.awt.*;
@@ -72,6 +71,8 @@ public class ChessPanel extends JPanel {
     private static LinkedList<Chess> chessStack = new LinkedList<Chess>();
     private static String chetInfo;
 
+    private static int reshowIndex = 0;
+
     public ChessPanel() {
 
         whiteChess = new ImageIcon("image/white.png").getImage();
@@ -128,8 +129,17 @@ public class ChessPanel extends JPanel {
         if(cursorTriger.isDraw()){
             g.drawImage(cursorTriger.getCursor(), cursorTriger.getX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, cursorTriger.getY() * BLOCKWIDTH + BASEY - BLOCKWIDTH / 2, cursorTriger.getCursor().getWidth(null),cursorTriger.getCursor().getHeight(null),null);
         }
-        if(chessStack!=null){
-            for(int i=0;i<chessStack.size();i++){
+        if(chessStack!=null&&(reshowIndex==0)){
+            for(int i=0;(i<chessStack.size());i++){
+                Chess c = chessStack.get(i);
+                if(c.getColor()==Chess.WHITE){
+                    g.drawImage(whiteChess,c.getPosX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, c.getPosY() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, Chess.WIDTH, Chess.HEIGHT, null);
+                } else {
+                    g.drawImage(blackChess,c.getPosX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, c.getPosY() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, Chess.WIDTH, Chess.HEIGHT, null);
+                }
+            }
+        } else if(chessStack!=null&&(reshowIndex!=0)){
+            for(int i=0;(i<reshowIndex);i++){
                 Chess c = chessStack.get(i);
                 if(c.getColor()==Chess.WHITE){
                     g.drawImage(whiteChess,c.getPosX() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, c.getPosY() * BLOCKWIDTH + BASEX - BLOCKWIDTH / 2, Chess.WIDTH, Chess.HEIGHT, null);
@@ -145,5 +155,19 @@ public class ChessPanel extends JPanel {
         this.chetInfo = chetInfo;
         repaint();
         ChetPanel.getInstance().updateText(chetInfo);
+    }
+
+    public void reShow() {
+        // TODO
+        if(reshowIndex<chessStack.size()){
+            this.reshowIndex++;
+            repaint();
+        } else{
+            ClientPlayer.getInstance().finishReshow();
+        }
+    }
+
+    public void initRePlay() {
+        this.reshowIndex = 0;
     }
 }

@@ -1,7 +1,11 @@
 package GameFrame;
 
+import Client.ClientPlayer;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class GameFrame extends JFrame {
 
@@ -18,6 +22,7 @@ public class GameFrame extends JFrame {
     private static ChetPanel chetPanel;
     private static JMenuBar menuBar;
     private static JMenu menu;
+    private static JMenuItem returnMenu;
 
     private GameFrame() throws HeadlessException {
 
@@ -29,8 +34,12 @@ public class GameFrame extends JFrame {
 
         menuBar = new JMenuBar();
         menu = new JMenu("操作");
+        returnMenu = new JMenuItem("返回游戏大厅");
+        menu.add(returnMenu);
         menuBar.add(menu);
         this.setJMenuBar(menuBar);
+
+        initActionListener();
 
         chessPanel = ChessPanel.getInstance();
         chetPanel = ChetPanel.getInstance();
@@ -38,6 +47,18 @@ public class GameFrame extends JFrame {
         this.getContentPane().add(chetPanel);
 //        this.pack();
         this.setVisible(true);
+    }
+
+    private void initActionListener() {
+        returnMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JMenuItem rm = (JMenuItem) e.getSource();
+                if(rm.isSelected()){
+                    ClientPlayer.getInstance().returnGameLobby();
+                }
+            }
+        });
     }
 
 
