@@ -28,8 +28,25 @@ public class Model implements Serializable {
     private String chetInfo;
     private int winner = SPACE;
     private int regretChessColor;
-
     private boolean agreeRegret = false;
+    private int surrenderChessColor;
+    private boolean agreeSurrender = false;
+
+    public boolean isAgreeSurrender() {
+        return agreeSurrender;
+    }
+
+    public void setAgreeSurrender(boolean agreeSurrender) {
+        this.agreeSurrender = agreeSurrender;
+    }
+
+    public int getSurrenderChessColor() {
+        return surrenderChessColor;
+    }
+
+    public void setSurrenderChessColor(int surrenderChessColor) {
+        this.surrenderChessColor = surrenderChessColor;
+    }
 
     public int getRegretChessColor() {
         return regretChessColor;
@@ -96,6 +113,7 @@ public class Model implements Serializable {
 
     public void setWinner(int winChessColor) {
         this.winner = winChessColor;
+        this.surrenderChessColor = Chess.SPACE;
     }
 
     public void updateChetInfo(String userName, String chetStr) {

@@ -12,6 +12,8 @@ class CommandOption{
     public static final String WIN = "WIN";
     public static final String SEND_CHET_MESSAGE = "SEND_CHET_MESSAGE";
     public static final String AGREE_REGRET = "AGREE_REGRET";
+    public static final String SURRENDER = "SURRENDER";
+//    public static final String AGREE_SURRENDER = "AGREE_SURRENDER";
 }
 
 public class RoomServer implements Serializable {
@@ -151,6 +153,24 @@ public class RoomServer implements Serializable {
                 model.setAgreeRegret(false);
             }
         }
+
+        // acquire = "SURRENDER:chessColor"
+        else if(acquire.startsWith(CommandOption.SURRENDER)){
+            String[] info = acquire.split(":");
+            int chessColor = Integer.parseInt(info[1]);
+            System.out.println(chessColor+"想认输");
+            model.setSurrenderChessColor(chessColor);
+        }
+
+//        // acquire = "AGREE_SURRENDER:0/1"
+//        else if(acquire.startsWith(CommandOption.AGREE_SURRENDER)){
+//            String[] info = acquire.split(":");
+//            if(Integer.parseInt(info[1]) == 0){
+//                model.setAgreeSurrender(true);
+//            } else {
+//                model.setAgreeSurrender(false);
+//            }
+//        }
     }
 
 }

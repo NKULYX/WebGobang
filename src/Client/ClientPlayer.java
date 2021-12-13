@@ -21,6 +21,8 @@ class CommandOption{
     public static final String SEND_CHET_MESSAGE = "SEND_CHET_MESSAGE";
     public static final String REGRET_CHESS = "REGRET_CHESS";
     public static final String AGREE_REGRET = "AGREE_REGRET";
+    public static final String SURRENDER = "SURRENDER";
+    public static final String AGREE_SURRENDER = "AGREE_SURRENDER";
 }
 
 public class ClientPlayer {
@@ -220,8 +222,23 @@ public class ClientPlayer {
             if((model.getRegretChessColor()!=Chess.SPACE)&&model.getRegretChessColor()==(-1*this.chessColor)){
                 askAgreeRegret();
             }
+
+            // 检查是否有认输请求 如果认输者的颜色和自己不同并且不是SAPCE 则需要本方去确认是否同意认输请求
+            if((model.getSurrenderChessColor()!=Chess.SPACE)&&model.getSurrenderChessColor()==(-1*this.chessColor)){
+                askAgreeSurrender();
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void askAgreeSurrender() {
+        int option = JOptionPane.showConfirmDialog(null, "对方想要认输，是否同意认输请求","认输请求",JOptionPane.OK_CANCEL_OPTION);
+        System.out.println(option);
+        if(option == 0){
+            sendWinMessage(this.chessColor);
+        } else{
+            sendWinMessage(Chess.SPACE);
         }
     }
 
@@ -408,5 +425,21 @@ public class ClientPlayer {
     public static void main(String[] args) {
         ClientPlayer.getInstance().connectMainServer();
         ClientPlayer.getInstance().login();
+    }
+
+    public void surrender() {
+        try {
+            socket = new Socket("localhost",roomPort);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+            StringBuilder builder = new StringBuilder();
+            builder.append(CommandOption.SURRENDER);
+            builder.append(":");
+            builder.append(this.chessColor);
+            String info = builder.toString();
+            System.out.println("客户端发送了:"+info);
+            out.println(info);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

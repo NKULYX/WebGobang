@@ -99,6 +99,13 @@ public class ChetPanel extends JPanel {
                 ClientPlayer.getInstance().regretChess();
             }
         });
+
+        surrenderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ClientPlayer.getInstance().surrender();
+            }
+        });
     }
 
     private void localUpdateText() {
