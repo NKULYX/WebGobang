@@ -73,6 +73,7 @@ public class ClientPlayer {
      * 进入游戏大厅
      */
     public void enterGameLobby() {
+        System.out.println("进入游戏大厅");
         GameLobby.getInstance().start();
     }
 
@@ -82,12 +83,15 @@ public class ClientPlayer {
      */
     public ArrayList<Integer> getRoomList() {
         try {
+            socket = new Socket("localhost",8080);
             PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
             StringBuilder builder = new StringBuilder();
             builder.append(CommandOption.GET_ROOM_MEMBER_NUM);
             out.println(builder.toString());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            return (ArrayList<Integer>) in.readObject();
+            ArrayList<Integer> list = (ArrayList<Integer>) in.readObject();
+            System.out.println(list);
+            return list;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -128,17 +132,18 @@ public class ClientPlayer {
      */
     private void connectRoomServer() {
         try {
+            socket = new Socket("localhost",8080);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
             out.println("SET_ROOMID:"+roomID);
-            while(true){
+//            while(true){
                 String line = in.readLine();
                 if(line.startsWith("a:")){
                     roomPort = Integer.parseInt(line.substring(2));
                     System.out.println("加入房间的端口号:"+roomPort);
 //                    socket = new Socket("localhost",roomPort);  // 和房间服务器建立连接
-                    break;
-                }
+//                    break;
+//                }
             }
         } catch (IOException e) {
             e.printStackTrace();

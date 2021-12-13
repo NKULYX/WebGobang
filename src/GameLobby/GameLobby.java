@@ -25,6 +25,7 @@ public class GameLobby extends JFrame {
     private static JScrollPane scrollPane;
     private static int roomNum = 12;
     private static ArrayList<JLabel> roomMemberNumLabel;
+    private static ArrayList<JButton> roomEnterButton;
     private static ArrayList<Integer> roomMemberNum;
 
     private GameLobby() {
@@ -32,6 +33,7 @@ public class GameLobby extends JFrame {
         roomMemberNum = ClientPlayer.getInstance().getRoomList();
 
         roomMemberNumLabel = new ArrayList<JLabel>();
+        roomEnterButton = new ArrayList<JButton>();
 
         this.setLocation(250,0);
         this.setResizable(false);
@@ -67,6 +69,8 @@ public class GameLobby extends JFrame {
             } else {
                 enterButton.setText("加入观战");
             }
+            roomEnterButton.add(enterButton);
+
             enterButton.setName(Integer.toString(i));
             enterButton.setBounds(90,0,90,30);
             enterButton.setBackground(new Color(0,98,132));
@@ -138,18 +142,34 @@ public class GameLobby extends JFrame {
     }
 
     public void start() {
+        System.out.println("大厅开始发起更新请求");
         new Thread(){
             @Override
             public void run() {
+                System.out.println(ClientPlayer.getInstance().isGaming());
                 while(!ClientPlayer.getInstance().isGaming()){
+                    System.out.println("向主服务器请求房间信息");
                     try {
                         roomMemberNum = ClientPlayer.getInstance().getRoomList();
-                        sleep(500);
+                        updataRoomInfo();
+                        sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             }
         }.start();
+    }
+
+    private void updataRoomInfo() {
+        for(int i=0;i<roomNum;i++){
+            int num = roomMemberNum.get(i);
+            roomMemberNumLabel.get(i).setText("当前人数:"+num);
+            if(num<2){
+                roomEnterButton.get(i).setText("加入房间");
+            } else {
+                roomEnterButton.get(i).setText("加入观战");
+            }
+        }
     }
 }

@@ -92,6 +92,7 @@ public class RoomServer implements Serializable {
      * @throws IOException
      */
     private void controlProcess(Socket socket) throws IOException {
+        System.out.println("处理请求");
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
         String acquire = in.readLine();
@@ -103,15 +104,18 @@ public class RoomServer implements Serializable {
             model.putChess(Integer.parseInt(info[1]),Integer.parseInt(info[2]),Integer.parseInt(info[3]));
             out.writeObject(model.getChessStack());
         }
+
         // acquire = "REGRET_CHESS"
         else if(acquire.startsWith(CommandOption.REGRET_CHESS)) {
             model.regretChess();
         }
+
         // acquire = "CHECK_UPDATE"
         else if(acquire.startsWith(CommandOption.CHECK_UPDATE)){
             System.out.println("向客户端返回棋局信息"+model.getChessStack());
             out.writeObject(model);
         }
+
         // acquire = "WIN:chessColor"
         else if(acquire.startsWith(CommandOption.WIN)){
             String[] info = acquire.split(":");
