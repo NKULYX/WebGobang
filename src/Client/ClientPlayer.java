@@ -628,5 +628,4 @@ public class ClientPlayer {
         ClientPlayer.getInstance().login();
     }
 
-
 }
