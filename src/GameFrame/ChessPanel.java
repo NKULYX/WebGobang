@@ -1,6 +1,7 @@
 package GameFrame;
 
 import Client.ClientPlayer;
+import MusicThread.MusicThread;
 
 import javax.swing.*;
 import java.awt.*;
@@ -98,6 +99,7 @@ public class ChessPanel extends JPanel {
                     int curY = (e.getY() - BASEY + BLOCKWIDTH / 2) / BLOCKWIDTH;
                     if(ClientPlayer.getInstance().checkIndex(curX,curY,0)){
                         chessStack = ClientPlayer.getInstance().putChess(ClientPlayer.getInstance().getChessColor(),curX,curY);
+                        MusicThread.getInstance().putChess();
                         repaint();
                     }
                 }

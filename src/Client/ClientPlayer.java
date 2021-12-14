@@ -7,6 +7,7 @@ import GameFrame.ChetPanel;
 import GameFrame.LoginFrame;
 import GameLobby.GameLobby;
 import Server.Model;
+import MusicThread.MusicThread;
 
 import javax.swing.*;
 import java.io.*;
@@ -291,6 +292,7 @@ public class ClientPlayer {
                 }
             }
         }.start();
+        MusicThread.getInstance().start();
     }
 
     /**
