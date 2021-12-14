@@ -17,6 +17,8 @@ import java.util.LinkedList;
 /**
  * 请求控制命令，包含:<br>
  * <code>GET_ROOM_MEMBER_NUM</code> 请求房间人数信息<br>
+ * <code>REGISTER_VERIFY</code> 请求注册验证
+ * <code>LOGIN_VERIFY</code> 请求登录验证
  * <code>CHECK_UPDATE</code> 请求更新命令<br>
  * <code>PUT_CHESS</code> 下棋命令<br>
  * <code>REGRET_CHESS</code> 悔棋命令<br>
@@ -28,6 +30,8 @@ import java.util.LinkedList;
  */
 class CommandOption{
     public static final String GET_ROOM_MEMBER_NUM = "GET_ROOM_MEMBER_NUM";
+    public static final String REGISTER_VERIFY = "REGISTER_VERIFY";
+    public static final String LOGIN_VERIFY = "LOGIN_VERIFY";
     public static final String CHECK_UPDATE = "CHECK_UPDATE";
     public static final String PUT_CHESS = "PUT_CHESS";
     public static final String REGRET_CHESS = "REGRET_CHESS";
@@ -124,6 +128,72 @@ public class ClientPlayer {
      */
     private void login() {
         LoginFrame.getInstance().setVisible(true);
+    }
+
+    /**
+     * 用户注册验证
+     * @param userName 用户名
+     * @param password 密码hash
+     * @return 是否注册成功
+     */
+    public boolean registerVerify(String userName, String password) {
+        try {
+            // 和主服务器建立请求
+            socket = new Socket("localhost",8080);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+            StringBuilder builder = new StringBuilder();
+            builder.append(CommandOption.REGISTER_VERIFY);
+            builder.append(":");
+            builder.append(userName);
+            builder.append(":");
+            builder.append(password);
+            String info = builder.toString();
+            System.out.println("客户端发送了:"+info);
+            out.println(info);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String line = in.readLine();
+            if(line.startsWith("TRUE")){
+                return true;
+            } else{
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * 登录验证
+     * @param userName 用户名
+     * @param password 密码hash
+     * @return 是否登录成功
+     */
+    public boolean loginVerify(String userName, String password) {
+        try {
+            // 和主服务器建立请求
+            socket = new Socket("localhost",8080);
+            PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+            StringBuilder builder = new StringBuilder();
+            builder.append(CommandOption.LOGIN_VERIFY);
+            builder.append(":");
+            builder.append(userName);
+            builder.append(":");
+            builder.append(password);
+            String info = builder.toString();
+            System.out.println("客户端发送了:"+info);
+            out.println(info);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String line = in.readLine();
+            if(line.startsWith("TRUE")){
+                return true;
+            } else{
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
@@ -254,7 +324,13 @@ public class ClientPlayer {
             // 检查当前的胜负状况 如果有胜负发生，则停止更新请求，并准备复盘
             System.out.println("当前的胜负情况:"+model.getWinner());
             if(model.getWinner()!=Chess.SPACE){
-                if(model.getWinner()==this.chessColor){
+                // 如果是观战方 应当显示游戏结束
+                if(this.chessColor == Chess.SPACE){
+                    GameFrame.getInstance().showGameOver(model.getWinner());
+                    this.isGaming = false;
+                    this.isTurn = false;
+                }
+                else if(model.getWinner()==this.chessColor){
                     GameFrame.getInstance().showWin();
                     this.isGaming = false;
                     this.isTurn = false;
@@ -551,4 +627,6 @@ public class ClientPlayer {
         ClientPlayer.getInstance().connectMainServer();
         ClientPlayer.getInstance().login();
     }
+
+
 }

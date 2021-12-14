@@ -23,7 +23,7 @@ public class LoginFrame extends JFrame {
     private static JLabel userNameLabel;
     private static JLabel userPasswordLabel;
     private static JTextField userNameTextField;
-    private static JTextField userPasswordTextField;
+    private static JPasswordField userPasswordTextField;
     private static JButton loginButton;
     private static JButton registerButton;
 
@@ -44,7 +44,7 @@ public class LoginFrame extends JFrame {
         userPasswordLabel.setPreferredSize(new Dimension(75,50));
         userNameTextField = new JTextField();
         userNameTextField.setPreferredSize(new Dimension(150,50));
-        userPasswordTextField = new JTextField();
+        userPasswordTextField = new JPasswordField();
         userPasswordTextField.setPreferredSize(new Dimension(150,50));
 
         userInputFrame.setLayout(new GridLayout(2,1));
@@ -79,10 +79,15 @@ public class LoginFrame extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String userName = userNameLabel.getText();
+                String userName = userNameTextField.getText();
                 String password = userPasswordTextField.getText();
-                // 如果认证成功
-                if(userVerify(userName, password)){
+                // 如果输入为空
+                if(userName.length()==0||password.length()==0){
+                    JOptionPane.showMessageDialog(null, "用户名或密码为空","登录",JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+                // 如果输入不为空，则要登录认证
+                if(userLoginVerify(userName, password)){
                     ClientPlayer.getInstance().setUserName(userName);
                     ClientPlayer.getInstance().enterGameLobby();
                     LoginFrame.getInstance().setVisible(false);
@@ -91,18 +96,58 @@ public class LoginFrame extends JFrame {
                 }
             }
         });
+
+        registerButton.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String userName = userNameTextField.getText();
+                String password = userPasswordTextField.getText();
+                // 如果输入为空
+                if(userName.length()==0||password.length()==0){
+                    JOptionPane.showMessageDialog(null, "用户名或密码为空","注册",JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+                // 如果输入不为空，则要验证是否注册过
+                if(userRegisterVerify(userName,password)){
+                    int option = JOptionPane.showConfirmDialog(null, "注册成功！\n是否登录","注册成功",JOptionPane.OK_CANCEL_OPTION);
+                    // 如果选择登陆游戏
+                    if(option == 0){
+                        ClientPlayer.getInstance().setUserName(userName);
+                        ClientPlayer.getInstance().enterGameLobby();
+                        LoginFrame.getInstance().setVisible(false);
+                    }
+                    // 如果不选择登陆游戏
+                    else{
+                        userNameTextField.setText(null);
+                        userPasswordTextField.setText(null);
+                    }
+                } else{
+                    JOptionPane.showMessageDialog(null, "用户名已存在！","验证失败",JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
     }
 
     /**
-     * 用户信息验证
+     * 用户注册验证
+     * @param userName
+     * @param password
+     * @return 验证是否通过
+     */
+    private boolean userRegisterVerify(String userName, String password) {
+        String hashpwd = Integer.toString(password.hashCode());
+        return ClientPlayer.getInstance().registerVerify(userName,hashpwd);
+    }
+
+    /**
+     * 用户登录验证
      * @param userName 用户名
      * @param password 密码
      * @return 返回是否通过验证
      */
-    private boolean userVerify(String userName, String password) {
-        return true;
+    private boolean userLoginVerify(String userName, String password) {
+        String hashpwd = Integer.toString(password.hashCode());
+        return ClientPlayer.getInstance().loginVerify(userName,hashpwd);
     }
-
-
 }
 

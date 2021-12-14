@@ -1,5 +1,7 @@
 package Server;
 
+import DataBase.DataBase;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -70,6 +72,28 @@ public class MainServer {
                                     if (line.contains("GET_ROOM_MEMBER_NUM")) {
                                         ObjectOutputStream o = new ObjectOutputStream(socket.getOutputStream());
                                         o.writeObject(roomMemberNum);
+                                    }
+                                    // 读取用户的注册验证  请求为 "REGISTER_VERIFY:username:password"
+                                    else if(line.startsWith("REGISTER_VERIFY")){
+                                        String[] info = line.split(":");
+                                        String username = info[1];
+                                        String password = info[2];
+                                        if(DataBase.getInstance().registerVerify(username,password)){
+                                            out.println("TRUE");
+                                        } else {
+                                            out.println("FALSE");
+                                        }
+                                    }
+                                    // 读取用户的登录验证 请求为 "LOGIN_VERIFY:username:password"
+                                    else if(line.startsWith("LOGIN_VERIFY")){
+                                        String[] info = line.split(":");
+                                        String username = info[1];
+                                        String password = info[2];
+                                        if(DataBase.getInstance().loginVerify(username, password)){
+                                            out.println("TRUE");
+                                        }else{
+                                            out.println("FALSE");
+                                        }
                                     }
                                     // 读取用户选择的房间号  请求为 "SET_ROOMID:房间号"
                                     else if (line.startsWith("SET_ROOMID")) {
