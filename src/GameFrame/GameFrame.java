@@ -84,9 +84,4 @@ public class GameFrame extends JFrame {
         JOptionPane.showMessageDialog(null, "对局结束, "+winnerColor+" 获胜!","对局结束",JOptionPane.INFORMATION_MESSAGE);
     }
 
-//    public static void main(String[] args) {
-//        getInstance();
-//    }
-
-
 }

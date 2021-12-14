@@ -181,8 +181,4 @@ public class GameLobby extends JFrame {
         }
     }
 
-//    public static void main(String[] args) {
-//        GameLobby.getInstance();
-//    }
-
 }

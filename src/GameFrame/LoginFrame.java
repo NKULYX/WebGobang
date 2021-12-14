@@ -149,5 +149,6 @@ public class LoginFrame extends JFrame {
         String hashpwd = Integer.toString(password.hashCode());
         return ClientPlayer.getInstance().loginVerify(userName,hashpwd);
     }
+
 }
 
