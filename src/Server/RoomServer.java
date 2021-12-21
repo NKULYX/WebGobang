@@ -115,46 +115,34 @@ public class RoomServer implements Serializable {
         // 并将更新后的棋子栈返回给客户端
         // acquire = "PUT_CHESS:chessColor:x:y"
         if(acquire.startsWith(CommandOption.PUT_CHESS)){
-            String[] info = acquire.split(":");
-            model.putChess(Integer.parseInt(info[1]),Integer.parseInt(info[2]),Integer.parseInt(info[3]));
-            out.writeObject(model.getChessStack());
+            putChess(out, acquire);
         }
         // 检查更新请求
         // 将服务端的 model 返回给客户端
         // acquire = "CHECK_UPDATE"
         else if(acquire.startsWith(CommandOption.CHECK_UPDATE)){
-            System.out.println("向客户端返回棋局信息"+model.getChessStack());
-            out.writeObject(model);
+            checkUpdate(out);
         }
         // 获胜请求
         // 解析请求字符串 获得获胜方的 chessColor
         // 调用 model 的 setWinner 函数，更新获胜者信息
         // acquire = "WIN:chessColor"
         else if(acquire.startsWith(CommandOption.WIN)){
-            String[] info = acquire.split(":");
-            int winChessColor = Integer.parseInt(info[1]);
-            System.out.println(winChessColor+"赢了");
-            model.setWinner(winChessColor);
+            setWin(acquire);
         }
         // 发送聊天信息请求
         // 解析请求字符串 获得发送者的 userName 和 发送的信息 chetStr
         // 调用 model 中的 updateChetInfo 函数更新聊天信息
         // acquire = "SEND_CHET_MESSAGE:userName:chetInfo"
         else if(acquire.startsWith(CommandOption.SEND_CHET_MESSAGE)){
-            String[] info = acquire.split(":");
-            String userName = info[1];
-            String chetStr = info[2];
-            model.updateChetInfo(userName,chetStr);
+            updateChetInfo(acquire);
         }
         // 悔棋请求
         // 解析请求字符串 获得认输一方的棋子颜色 chessColor
         // 调用 model 中的 setRegretChessColor 函数，更新 model 中的悔棋方信息
         // acquire = "REGRET_CHESS:chessColor"
         else if(acquire.startsWith(CommandOption.REGRET_CHESS)){
-            String[] info = acquire.split(":");
-            int chessColor = Integer.parseInt(info[1]);
-            System.out.println(chessColor+"想悔棋");
-            model.setRegretChessColor(chessColor);
+            regretChess(acquire);
         }
         // 同意悔棋请求
         // 解析请求字符串 获得是否同意悔棋
@@ -162,26 +150,97 @@ public class RoomServer implements Serializable {
         // 如果同意悔棋，则执行 model 中的 regretChess 函数
         // acquire = "AGREE_REGRET:0/1";
         else if(acquire.startsWith(CommandOption.AGREE_REGRET)){
-            String[] info = acquire.split(":");
-            if(Integer.parseInt(info[1]) == 0){
-                model.regretChess();
-            }
-            model.setRegretChessColor(Chess.SPACE);
+            agreeRegret(acquire);
         }
         // 认输请求
         // 解析请求字符串 获得认输方的棋子颜色 chessColor
         // 调用 model 中的 setSurrenderChessColor 函数，更新认输信息
         // acquire = "SURRENDER:chessColor"
         else if(acquire.startsWith(CommandOption.SURRENDER)){
-            String[] info = acquire.split(":");
-            int chessColor = Integer.parseInt(info[1]);
-            System.out.println(chessColor+"想认输");
-            model.setSurrenderChessColor(chessColor);
+            surrender(acquire);
         }
         // 悬空处理
         else{
 
         }
+    }
+
+    /**
+     * 检查更新
+     * @param out socket输出
+     * @throws IOException 异常
+     */
+    private void checkUpdate(ObjectOutputStream out) throws IOException {
+        System.out.println("向客户端返回棋局信息"+model.getChessStack());
+        out.writeObject(model);
+    }
+
+    /**
+     * 下棋操作
+     * @param out socket输出
+     * @param acquire 客户端请求
+     * @throws IOException 异常
+     */
+    private void putChess(ObjectOutputStream out, String acquire) throws IOException {
+        String[] info = acquire.split(":");
+        model.putChess(Integer.parseInt(info[1]),Integer.parseInt(info[2]),Integer.parseInt(info[3]));
+        out.writeObject(model.getChessStack());
+    }
+
+    /**
+     * 设置获胜方
+     * @param acquire 客户端请求
+     */
+    private void setWin(String acquire) {
+        String[] info = acquire.split(":");
+        int winChessColor = Integer.parseInt(info[1]);
+        System.out.println(winChessColor+"赢了");
+        model.setWinner(winChessColor);
+    }
+
+    /**
+     * 更新聊天信息
+     * @param acquire 客户端请求
+     */
+    private void updateChetInfo(String acquire) {
+        String[] info = acquire.split(":");
+        String userName = info[1];
+        String chetStr = info[2];
+        model.updateChetInfo(userName,chetStr);
+    }
+
+    /**
+     * 悔棋请求
+     * @param acquire 客户端请求
+     */
+    private void regretChess(String acquire) {
+        String[] info = acquire.split(":");
+        int chessColor = Integer.parseInt(info[1]);
+        System.out.println(chessColor+"想悔棋");
+        model.setRegretChessColor(chessColor);
+    }
+
+    /**
+     * 同意悔棋
+     * @param acquire 客户端请求
+     */
+    private void agreeRegret(String acquire) {
+        String[] info = acquire.split(":");
+        if(Integer.parseInt(info[1]) == 0){
+            model.regretChess();
+        }
+        model.setRegretChessColor(Chess.SPACE);
+    }
+
+    /**
+     * 认输请求
+     * @param acquire 客户端请求
+     */
+    private void surrender(String acquire) {
+        String[] info = acquire.split(":");
+        int chessColor = Integer.parseInt(info[1]);
+        System.out.println(chessColor+"想认输");
+        model.setSurrenderChessColor(chessColor);
     }
 
 }

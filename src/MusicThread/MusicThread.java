@@ -21,7 +21,7 @@ public class MusicThread {
     private static String chessMusic = "music/putchess.wav";
 
     public void start(){
-        if(ClientPlayer.getInstance().getChessColor()== Chess.WHITE){
+        if(ClientPlayer.getInstance().getChessColor() != Chess.WHITE){
             return;
         }
         System.out.println("开始播放背景音乐");

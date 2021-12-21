@@ -70,46 +70,23 @@ public class MainServer {
                                     System.out.println("收到客户端消息:" + line);
                                     // 发送房间列表信息  请求为 "GET_ROOM_MEMBER_NUM"
                                     if (line.contains("GET_ROOM_MEMBER_NUM")) {
-                                        ObjectOutputStream o = new ObjectOutputStream(socket.getOutputStream());
-                                        o.writeObject(roomMemberNum);
+                                        getRoomMember(socket);
                                     }
                                     // 读取用户的注册验证  请求为 "REGISTER_VERIFY:username:password"
                                     else if(line.startsWith("REGISTER_VERIFY")){
-                                        String[] info = line.split(":");
-                                        String username = info[1];
-                                        String password = info[2];
-                                        if(DataBase.getInstance().registerVerify(username,password)){
-                                            out.println("TRUE");
-                                        } else {
-                                            out.println("FALSE");
-                                        }
+                                        registerVerify(out, line);
                                     }
                                     // 读取用户的登录验证 请求为 "LOGIN_VERIFY:username:password"
                                     else if(line.startsWith("LOGIN_VERIFY")){
-                                        String[] info = line.split(":");
-                                        String username = info[1];
-                                        String password = info[2];
-                                        if(DataBase.getInstance().loginVerify(username, password)){
-                                            out.println("TRUE");
-                                        }else{
-                                            out.println("FALSE");
-                                        }
+                                        loginVerify(out, line);
                                     }
                                     // 读取用户选择的房间号  请求为 "SET_ROOMID:房间号"
                                     else if (line.startsWith("SET_ROOMID")) {
-                                        String[] info = line.split(":");
-                                        Integer roomId = Integer.parseInt(info[1]);  // 获取房间号
-                                        roomList.get(roomId).startSever(PORT + 1 + roomId);
-                                        roomMemberNum.set(roomId, roomMemberNum.get(roomId) + 1);
-                                        int newRoomPort = roomId + PORT + 1;
-                                        out.println("a:" + newRoomPort);
+                                        setRoomID(out, line);
                                     }
                                     // 读取用户退出房间  请求为 "EXIT:房间号"
                                     else if (line.startsWith("EXIT")) {
-                                        String[] info = line.split(":");
-                                        int roomId = Integer.parseInt(info[1]);
-                                        roomMemberNum.set(roomId, roomMemberNum.get(roomId) - 1);
-                                        roomList.get(roomId).init();
+                                        clientExitRoom(line);
                                     }
                                     // 悬空处理
                                     else{
@@ -126,6 +103,49 @@ public class MainServer {
                 }
             }
         }.start();
+    }
+
+    private void clientExitRoom(String line) {
+        String[] info = line.split(":");
+        int roomId = Integer.parseInt(info[1]);
+        roomMemberNum.set(roomId, roomMemberNum.get(roomId) - 1);
+        roomList.get(roomId).init();
+    }
+
+    private void setRoomID(PrintWriter out, String line) {
+        String[] info = line.split(":");
+        Integer roomId = Integer.parseInt(info[1]);  // 获取房间号
+        roomList.get(roomId).startSever(PORT + 1 + roomId);
+        roomMemberNum.set(roomId, roomMemberNum.get(roomId) + 1);
+        int newRoomPort = roomId + PORT + 1;
+        out.println("a:" + newRoomPort);
+    }
+
+    private void loginVerify(PrintWriter out, String line) {
+        String[] info = line.split(":");
+        String username = info[1];
+        String password = info[2];
+        if(DataBase.getInstance().loginVerify(username, password)){
+            out.println("TRUE");
+        }else{
+            out.println("FALSE");
+        }
+    }
+
+    private void registerVerify(PrintWriter out, String line) {
+        String[] info = line.split(":");
+        String username = info[1];
+        String password = info[2];
+        if(DataBase.getInstance().registerVerify(username,password)){
+            out.println("TRUE");
+        } else {
+            out.println("FALSE");
+        }
+    }
+
+    private void getRoomMember(Socket socket) throws IOException {
+        ObjectOutputStream o = new ObjectOutputStream(socket.getOutputStream());
+        o.writeObject(roomMemberNum);
     }
 
 }
