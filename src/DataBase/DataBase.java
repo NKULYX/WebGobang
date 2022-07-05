@@ -15,8 +15,9 @@ public class DataBase {
 
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
     private static final String DBURL = "jdbc:mysql://localhost:3306/test";
+    private static final String DBTABLE_NAME = "user";
     private static final String DBUSER = "root";
-    private static final String DBPWD = "lyx020411";
+    private static final String DBPWD = "";
 
     private static Connection con;
     private static Statement statement;
@@ -34,7 +35,7 @@ public class DataBase {
             Class.forName(DRIVER_NAME);
             con = DriverManager.getConnection(DBURL,DBUSER,DBPWD);
             statement = con.createStatement();
-            read = statement.executeQuery("select * from user");
+            read = statement.executeQuery("select * from " + DBTABLE_NAME);
             while(read.next()){
                 String existUser = read.getString("username");
                 if(existUser.equals(username)){
@@ -42,7 +43,7 @@ public class DataBase {
                 }
             }
             // 在数据库中并没有发现该用户，将新用户添加到数据库中
-            write = con.prepareStatement("insert into user (username,password) values(?,?)");
+            write = con.prepareStatement("insert into " + DBTABLE_NAME + " (username,password) values(?,?)");
             write.setString(1,username);
             write.setString(2,password);
             write.executeUpdate();
@@ -65,7 +66,7 @@ public class DataBase {
             Class.forName(DRIVER_NAME);
             con = DriverManager.getConnection(DBURL,DBUSER,DBPWD);
             statement = con.createStatement();
-            read = statement.executeQuery("select * from user");
+            read = statement.executeQuery("select * from " + DBTABLE_NAME);
             while(read.next()){
                 String existUser = read.getString("username");
                 String existPassword = read.getString("password");
